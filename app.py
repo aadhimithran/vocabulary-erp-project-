@@ -4,6 +4,7 @@ import os
 import random
 from datetime import datetime
 import matplotlib.pyplot as plt
+import pytz   # ✅ Added for Indian Time
 
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
@@ -67,10 +68,13 @@ def filter_dataframe(df):
 
 
 # ===============================
-# Save Result
+# ✅ Save Result (IST Time Fixed)
 # ===============================
 
 def save_result(student, word, selected, correct):
+
+    ist = pytz.timezone("Asia/Kolkata")   # ✅ Indian Timezone
+    current_time = datetime.now(ist).strftime("%Y-%m-%d %H:%M:%S")
 
     result_text = "Right" if selected == correct else "Wrong"
 
@@ -80,7 +84,7 @@ def save_result(student, word, selected, correct):
         "Selected Answer": selected,
         "Correct Answer": correct,
         "Result": result_text,
-        "Date Time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        "Date Time": current_time   # ✅ Fixed Time
     }])
 
     if os.path.exists(DATA_FILE):
@@ -93,7 +97,7 @@ def save_result(student, word, selected, correct):
 
 
 # ===============================
-# FIXED PDF Generator (No Overlap)
+# PDF Generator
 # ===============================
 
 def generate_pdf(df, student_name):
@@ -195,10 +199,6 @@ if os.path.exists(DATA_FILE):
         df = df[df["Student Name"].str.contains(search, case=False)]
 
     st.dataframe(df, use_container_width=True)
-
-    # ===============================
-    # VERY SMALL GRAPHS
-    # ===============================
 
     if len(df) > 0:
 
